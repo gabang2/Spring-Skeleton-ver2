@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    username: root
+    password: admin1234
+    url: jdbc:mysql://127.0.0.1:3306/skeleton2
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+
