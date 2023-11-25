@@ -13,3 +13,10 @@ spring:
         format_sql: true
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
+
+  cache:
+    type: redis
+    redis:
+      host: localhost
+      port: 6379
+      cache-null-values: true # null 캐싱 여부
