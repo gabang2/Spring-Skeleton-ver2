@@ -107,7 +107,7 @@ public class JwtTokenProvider {
     private String doGenerateRefreshToken(String id) {
         String refreshToken = "Bearer " + Jwts.builder()
                 .setId(id)
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 5)) // 5시간
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 24 * 14)) // 2주
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setSubject("refresh-token")
@@ -147,7 +147,7 @@ public class JwtTokenProvider {
 
         String refreshToken = "Bearer " + Jwts.builder()
                 .setId(id)
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 5)) // 5시간
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 24 * 14)) // 2주
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setSubject("refresh-token")

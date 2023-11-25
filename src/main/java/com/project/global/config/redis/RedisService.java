@@ -7,6 +7,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 @RequiredArgsConstructor
 public class RedisService {
@@ -28,7 +30,7 @@ public class RedisService {
 
     public void putRedis(String key, Object classType){
         try {
-            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(classType));
+            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(classType), 14, TimeUnit.DAYS);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
