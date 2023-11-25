@@ -1,9 +1,6 @@
 package com.project.domain.member.service;
 
-import com.project.domain.member.dto.MemberLoginRequestDto;
-import com.project.domain.member.dto.MemberPatchRequestDto;
-import com.project.domain.member.dto.MemberRegisterRequestDto;
-import com.project.domain.member.dto.MemberResponseDto;
+import com.project.domain.member.dto.*;
 import com.project.domain.member.entity.Member;
 import com.project.domain.member.mapper.MemberMapper;
 import com.project.domain.member.repository.MemberRepository;
@@ -18,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -51,12 +49,15 @@ public class MemberService {
         // 이메일 & 비밀번호 일치 확인
         Member member = verifiedLoginDto(memberLoginRequestDto);
 
-        // accessToken 발급
-        String accessToken = jwtTokenProvider.generateAccessToken(member.getId());
+        // accessToken & refreshToken 발급
+        TokenResponseDto tokenResponseDto = TokenResponseDto.of(
+                jwtTokenProvider.generateAccessToken(member.getId()),
+                jwtTokenProvider.generateRefreshToken(member.getId())
+        );
 
         // Dto 반환
-        MemberResponseDto memberResponseDto= memberMapper.memberToMemberResponseDto(member);
-        memberResponseDto.setAccessToken(accessToken);
+        MemberResponseDto memberResponseDto = memberMapper.memberToMemberResponseDto(member);
+        memberResponseDto.setToken(tokenResponseDto);
 
         return memberResponseDto;
     }

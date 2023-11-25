@@ -31,6 +31,7 @@ public enum ErrorCode {
     EMAIL_DUPLICATE(400, "M010", "이메일이 중복되었습니다."),
     EMAIL_NOT_EXIST(400, "M012", "존재하지 않는 이메일입니다."),
     PASSWORD_NOT_MATCH(400, "M013", "비밀번호가 잘못되었습니다."),
+    CANT_REISSUE(400, "M014", "재발행 url(\"/api/members/reissue\")로만 accessToken 재발급이 가능합니다."),
 
     // Ticket
     TICKET_NOT_FOUND(400, "T001", "티켓을 찾을 수 없습니다."),

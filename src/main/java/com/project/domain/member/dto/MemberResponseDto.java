@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MemberResponseDto {
     public String email;
-    public String accessToken;
+    public TokenResponseDto token;
     public LocalDateTime createdDate;
     public LocalDateTime updatedDate;
 }

@@ -31,6 +31,11 @@ public class JwtTokenProvider {
         return new BCryptPasswordEncoder();
     }
 
+    // token으로 subject(access-token, refresh-token 여부) 조회
+    public String getSubjectFromToken(String token) {
+        return getClaimFromToken(token, Claims::getSubject);
+    }
+
     // token으로 사용자 id 조회
     public String getSubFromToken(String token) {
         return getClaimFromToken(token, Claims::getId);
@@ -82,6 +87,7 @@ public class JwtTokenProvider {
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1))// 1시간
                 .signWith(SignatureAlgorithm.HS512, secret)
+                .setSubject("access-token")
                 .compact();
 
         return "Bearer " + accessToken;
@@ -91,22 +97,30 @@ public class JwtTokenProvider {
     public String generateRefreshToken(String id) {
         return doGenerateRefreshToken(id);
     }
+    public String generateRefreshToken(Long id) {
+        return doGenerateRefreshToken(id.toString());
+    }
 
-    // JWT accessToken 생성
+    // JWT refreshToken 생성
     private String doGenerateRefreshToken(String id) {
         String refreshToken = Jwts.builder()
                 .setId(id)
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 5)) // 5시간
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .signWith(SignatureAlgorithm.HS512, secret)
+                .setSubject("refresh-token")
                 .compact();
 
-        return refreshToken;
+        return "Bearer " + refreshToken;
     }
 
     // id를 입력받아 accessToken, refreshToken 생성
     public Map<String, String> generateTokenSet(String id) {
         return generateTokenSet(id, new HashMap<>());
+    }
+
+    public Map<String, String> generateTokenSet(Long id) {
+        return generateTokenSet(id.toString(), new HashMap<>());
     }
 
     // id, 속성정보를 이용해 accessToken, refreshToken 생성
@@ -118,19 +132,21 @@ public class JwtTokenProvider {
     private Map<String, String> doGenerateTokenSet(String id, Map<String, Object> claims) {
         Map<String, String> tokens = new HashMap<String, String>();
 
-        String accessToken = Jwts.builder()
+        String accessToken = "Bearer " + Jwts.builder()
                 .setClaims(claims)
                 .setId(id)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1))// 1시간
                 .signWith(SignatureAlgorithm.HS512, secret)
+                .setSubject("access-token")
                 .compact();
 
-        String refreshToken = Jwts.builder()
+        String refreshToken = "Bearer " + Jwts.builder()
                 .setId(id)
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 5)) // 5시간
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .signWith(SignatureAlgorithm.HS512, secret)
+                .setSubject("refresh-token")
                 .compact();
 
         tokens.put("accessToken", accessToken);

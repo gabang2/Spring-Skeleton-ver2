@@ -1,5 +1,7 @@
 package com.project.global.config.jwt;
 
+import com.project.global.error.exception.BusinessException;
+import com.project.global.error.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -18,6 +20,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -48,12 +51,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String memberId = null;
         String jwtToken = null;
+        String typ = null;
 
         // Bearer token인 경우 JWT 토큰 유효성 검사 진행
         if (token != null && token.startsWith("Bearer ")) {
             jwtToken = token.substring(7);
             try {
                 memberId = jwtTokenProvider.getSubFromToken(jwtToken);
+                String subject = jwtTokenProvider.getSubjectFromToken(jwtToken);
+                if (subject.equals("refresh-token") && !request.getRequestURI().equals("/api/members/reissue")){
+                    throw new BusinessException(ErrorCode.CANT_REISSUE);
+                }
             } catch (SignatureException e) {
                 log.error("Invalid JWT signature: {}", e.getMessage());
             } catch (MalformedJwtException e) {
