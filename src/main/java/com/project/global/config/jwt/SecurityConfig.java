@@ -45,7 +45,7 @@ public class SecurityConfig {
 
         // Security 인증을 거치지 않는 url 목록
         MvcRequestMatcher[] PERMIT_ALL_WHITE_LIST = {
-                mvc.pattern("/api/users/login")
+                mvc.pattern("/api/members/login")
         };
 
         // rest api는 stateless 하기 때문에, csrf토큰 정보가 필요 없어서 disable 설정

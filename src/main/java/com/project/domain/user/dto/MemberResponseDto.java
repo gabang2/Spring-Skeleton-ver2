@@ -1,8 +1,5 @@
-package com.project.domain.user.dto;
-import jakarta.persistence.Column;
+package com.project.domain.member.dto;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class MemberResponseDto {
     public String email;
     public String password;
     public LocalDateTime createdDate;

@@ -1,8 +1,8 @@
 package com.project.global.config.jwt;
 
-import com.project.domain.user.dto.UserPatchRequestDto;
-import com.project.domain.user.entity.User;
-import com.project.domain.user.service.UserService;
+import com.project.domain.member.dto.MemberPatchRequestDto;
+import com.project.domain.member.entity.Member;
+import com.project.domain.member.service.MemberService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private final UserService userService;
+    private final MemberService memberService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static String secret = "jangdaehyeok";
@@ -130,29 +130,29 @@ public class JwtTokenProvider {
     }
 
     // JWT refreshToken 만료체크 후 재발급
-    public Boolean reGenerateRefreshToken(String userId) throws Exception {
+    public Boolean reGenerateRefreshToken(String memberId) throws Exception {
         log.info("[reGenerateRefreshToken] refreshToken 재발급 요청");
         // 관리자 정보 조회
-        User user = userService.verifiedUser(Long.parseLong(userId));
-        String userRefreshToken = user.getRefreshToken();
+        Member member = memberService.verifiedMember(Long.parseLong(memberId));
+        String memberRefreshToken = member.getRefreshToken();
 
         // refreshToken 정보가 존재하지 않는 경우
-        if(userRefreshToken == null) {
+        if(memberRefreshToken == null) {
             log.info("[reGenerateRefreshToken] refreshToken 정보가 존재하지 않습니다.");
             return false;
         }
 
         // refreshToken 만료 여부 체크
         try {
-            String refreshToken = userRefreshToken.substring(7);
+            String refreshToken = memberRefreshToken.substring(7);
             Jwts.parser().setSigningKey(secret).parseClaimsJws(refreshToken);
             log.info("[reGenerateRefreshToken] refreshToken이 만료되지 않았습니다.");
             return true;
         }
         // refreshToken이 만료된 경우 재발급
         catch(ExpiredJwtException e) {
-            String refreshToken = "Bearer " + generateRefreshToken(userId);
-            userService.patchUser(Long.parseLong(userId), UserPatchRequestDto.builder().refreshToken(refreshToken).build());
+            String refreshToken = "Bearer " + generateRefreshToken(memberId);
+            memberService.patchMember(Long.parseLong(memberId), MemberPatchRequestDto.builder().refreshToken(refreshToken).build());
             log.info("[reGenerateRefreshToken] refreshToken 재발급 완료 : {}", refreshToken);
             return true;
         }

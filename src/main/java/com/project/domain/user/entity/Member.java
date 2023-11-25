@@ -1,6 +1,6 @@
-package com.project.domain.user.entity;
+package com.project.domain.member.entity;
 
-import com.project.domain.user.dto.UserPatchRequestDto;
+import com.project.domain.member.dto.MemberPatchRequestDto;
 import com.project.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,14 +10,14 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Optional;
 
-@Entity(name = "user")
+@Entity(name = "member")
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "member_id")
     public Long id;
 
     @Column(name = "email")
@@ -30,17 +30,17 @@ public class User extends BaseEntity {
     public String refreshToken;
 
     @Builder
-    public User(String email, String password) {
+    public Member(String email, String password) {
         this.email = email;
         this.password = password;
         this.refreshToken = null;
     }
 
     // Patch
-    public User patchUser(UserPatchRequestDto userPatchRequestDto) {
-        this.email = Optional.ofNullable(userPatchRequestDto.getEmail()).orElse(this.email);
-        this.password = Optional.ofNullable(userPatchRequestDto.getPassword()).orElse(this.password);
-        this.refreshToken = Optional.ofNullable(userPatchRequestDto.getRefreshToken()).orElse(this.refreshToken);
+    public Member patchMember(MemberPatchRequestDto memberPatchRequestDto) {
+        this.email = Optional.ofNullable(memberPatchRequestDto.getEmail()).orElse(this.email);
+        this.password = Optional.ofNullable(memberPatchRequestDto.getPassword()).orElse(this.password);
+        this.refreshToken = Optional.ofNullable(memberPatchRequestDto.getRefreshToken()).orElse(this.refreshToken);
         return this;
     }
 }

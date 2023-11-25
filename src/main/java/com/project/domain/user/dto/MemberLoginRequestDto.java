@@ -1,4 +1,4 @@
-package com.project.domain.user.dto;
+package com.project.domain.member.dto;
 
 import lombok.*;
 
@@ -7,8 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserPatchRequestDto {
+public class MemberLoginRequestDto {
     public String email;
     public String password;
-    public String refreshToken;
 }

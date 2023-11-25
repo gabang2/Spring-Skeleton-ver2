@@ -1,6 +1,6 @@
 package com.project.global.config.jwt;
 
-import com.project.domain.user.dto.UserLoginRequestDto;
+import com.project.domain.member.dto.MemberLoginRequestDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -38,7 +38,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     Arrays.asList(
                             "/static/**",
                             "/favicon.ico",
-                            "/api/users/login"
+                            "/api/members/login"
                     ));
 
     @Override
@@ -47,14 +47,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        String userId = null;
+        String memberId = null;
         String jwtToken = null;
 
         // Bearer token인 경우 JWT 토큰 유효성 검사 진행
         if (token != null && token.startsWith("Bearer ")) {
             jwtToken = token.substring(7);
             try {
-                userId = jwtTokenProvider.getSubFromToken(jwtToken);
+                memberId = jwtTokenProvider.getSubFromToken(jwtToken);
             } catch (SignatureException e) {
                 log.error("Invalid JWT signature: {}", e.getMessage());
             } catch (MalformedJwtException e) {
@@ -71,14 +71,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         // token 검증이 되고 인증 정보가 존재하지 않는 경우 spring security 인증 정보 저장
-        if(userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto();
+        if(memberId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            MemberLoginRequestDto memberLoginRequestDto = new MemberLoginRequestDto();
 
             if(jwtTokenProvider.validateToken(jwtToken)) {
                 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         // Principal, credentials, authorities
-                        new UsernamePasswordAuthenticationToken(userId, null , null);
+                        new UsernamePasswordAuthenticationToken(memberId, null , null);
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
@@ -86,8 +86,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // accessToken 인증이 되었다면 refreshToken 재발급이 필요한 경우 재발급
         try {
-            if(userId != null) {
-                jwtTokenProvider.reGenerateRefreshToken(userId);
+            if(memberId != null) {
+                jwtTokenProvider.reGenerateRefreshToken(memberId);
             }
         }catch (Exception e) {
             log.error("[JwtRequestFilter] refreshToken 재발급 체크 중 문제 발생 : {}", e.getMessage());
