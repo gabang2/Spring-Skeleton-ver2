@@ -32,6 +32,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
 
+	// jwt
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -39,6 +43,15 @@ dependencies {
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// mapstruct
+	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+	annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+	annotationProcessor(
+			'org.projectlombok:lombok',
+			'org.projectlombok:lombok-mapstruct-binding:0.1.0',
+			'org.mapstruct:mapstruct-processor:1.4.2.Final'
+	)
 }
 
 tasks.named('test') {
