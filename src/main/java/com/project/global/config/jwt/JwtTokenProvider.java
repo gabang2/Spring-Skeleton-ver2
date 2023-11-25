@@ -3,6 +3,7 @@ package com.project.global.config.jwt;
 import com.project.domain.member.dto.MemberPatchRequestDto;
 import com.project.domain.member.entity.Member;
 import com.project.domain.member.service.MemberService;
+import com.project.global.config.redis.RedisService;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
+    private final RedisService redisService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static String secret = "jangdaehyeok";
@@ -81,7 +83,7 @@ public class JwtTokenProvider {
 
     // JWT accessToken 생성
     private String doGenerateAccessToken(String id, Map<String, Object> claims) {
-        String accessToken = Jwts.builder()
+        String accessToken = "Bearer " + Jwts.builder()
                 .setClaims(claims)
                 .setId(id)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -90,7 +92,7 @@ public class JwtTokenProvider {
                 .setSubject("access-token")
                 .compact();
 
-        return "Bearer " + accessToken;
+        return accessToken;
     }
 
     // id를 입력받아 accessToken 생성
@@ -103,7 +105,7 @@ public class JwtTokenProvider {
 
     // JWT refreshToken 생성
     private String doGenerateRefreshToken(String id) {
-        String refreshToken = Jwts.builder()
+        String refreshToken = "Bearer " + Jwts.builder()
                 .setId(id)
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 5)) // 5시간
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -111,7 +113,9 @@ public class JwtTokenProvider {
                 .setSubject("refresh-token")
                 .compact();
 
-        return "Bearer " + refreshToken;
+        redisService.putRedis(id, refreshToken);
+
+        return refreshToken;
     }
 
     // id를 입력받아 accessToken, refreshToken 생성
@@ -148,6 +152,8 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setSubject("refresh-token")
                 .compact();
+
+        redisService.putRedis(id, refreshToken);
 
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
