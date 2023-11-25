@@ -1,11 +1,6 @@
 package com.project.global.config.jwt;
 
-import com.project.domain.member.dto.MemberPatchRequestDto;
-import com.project.domain.member.entity.Member;
-import com.project.domain.member.service.MemberService;
 import com.project.global.config.redis.RedisService;
-import com.project.global.error.exception.BusinessException;
-import com.project.global.error.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

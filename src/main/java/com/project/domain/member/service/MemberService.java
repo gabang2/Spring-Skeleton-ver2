@@ -91,12 +91,6 @@ public class MemberService {
         return memberRepository.findAll();
     }
 
-    public Member patchMember(Long id, MemberPatchRequestDto memberPatchRequestDto) {
-        Member member = verifiedMember(id).patchMember(memberPatchRequestDto);
-        memberRepository.save(member);
-        return member;
-    }
-
     public void deleteMember(Long id) {
         memberRepository.delete(verifiedMember(id));
     }
