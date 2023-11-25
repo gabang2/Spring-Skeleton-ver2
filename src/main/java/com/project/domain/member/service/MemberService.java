@@ -62,6 +62,27 @@ public class MemberService {
         return memberResponseDto;
     }
 
+    /**
+     * 재발행
+     */
+    public MemberResponseDto reissueMember() {
+
+        // 이메일 & 비밀번호 일치 확인
+        Member member = getMemberFromAccessToken();
+
+        // accessToken & refreshToken 발급
+        TokenResponseDto tokenResponseDto = TokenResponseDto.of(
+                jwtTokenProvider.generateAccessToken(member.getId()),
+                jwtTokenProvider.generateRefreshToken(member.getId())
+        );
+
+        // Dto 반환
+        MemberResponseDto memberResponseDto = memberMapper.memberToMemberResponseDto(member);
+        memberResponseDto.setToken(tokenResponseDto);
+
+        return memberResponseDto;
+    }
+
     public Member getMember(Long id) {
         return verifiedMember(id);
     }

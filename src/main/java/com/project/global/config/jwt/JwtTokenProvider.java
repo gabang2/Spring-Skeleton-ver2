@@ -4,6 +4,8 @@ import com.project.domain.member.dto.MemberPatchRequestDto;
 import com.project.domain.member.entity.Member;
 import com.project.domain.member.service.MemberService;
 import com.project.global.config.redis.RedisService;
+import com.project.global.error.exception.BusinessException;
+import com.project.global.error.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Component
@@ -160,40 +163,14 @@ public class JwtTokenProvider {
         return tokens;
     }
 
-    // redis로 구현하기
-    // JWT refreshToken 만료체크 후 재발급
-//    public Boolean reGenerateRefreshToken(String memberId) throws Exception {
-//        log.info("[reGenerateRefreshToken] refreshToken 재발급 요청");
-//        // 관리자 정보 조회
-//        Member member = memberService.verifiedMember(Long.parseLong(memberId));
-//        String memberRefreshToken = member.getRefreshToken();
-//
-//        // refreshToken 정보가 존재하지 않는 경우
-//        if(memberRefreshToken == null) {
-//            log.info("[reGenerateRefreshToken] refreshToken 정보가 존재하지 않습니다.");
-//            return false;
-//        }
-//
-//        // refreshToken 만료 여부 체크
-//        try {
-//            String refreshToken = memberRefreshToken.substring(7);
-//            Jwts.parser().setSigningKey(secret).parseClaimsJws(refreshToken);
-//            log.info("[reGenerateRefreshToken] refreshToken이 만료되지 않았습니다.");
-//            return true;
-//        }
-//        // refreshToken이 만료된 경우 재발급
-//        catch(ExpiredJwtException e) {
-//            String refreshToken = "Bearer " + generateRefreshToken(memberId);
-//            memberService.patchMember(Long.parseLong(memberId), MemberPatchRequestDto.builder().refreshToken(refreshToken).build());
-//            log.info("[reGenerateRefreshToken] refreshToken 재발급 완료 : {}", refreshToken);
-//            return true;
-//        }
-//        // 그 외 예외처리
-//        catch(Exception e) {
-//            log.error("[reGenerateRefreshToken] refreshToken 재발급 중 문제 발생 : {}", e.getMessage());
-//            return false;
-//        }
-//    }
+    public void verifiedRefreshToken(String refreshToken) {
+        String sub = getSubFromToken(refreshToken.substring(7));
+        String redisRefreshToken = redisService.getRedisValue(sub, String.class);
+        if (!Objects.equals(refreshToken, redisRefreshToken)) {
+            log.error("유효하지 않은 refreshToken 입니다.");
+            throw new UnsupportedJwtException("유효하지 않은 refreshToken 입니다.");
+        }
+    }
 
     // 토근 검증
     public Boolean validateToken(String token) {

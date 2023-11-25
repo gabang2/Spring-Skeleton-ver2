@@ -1,5 +1,6 @@
 package com.project.global.config.jwt;
 
+import com.project.global.config.redis.RedisService;
 import com.project.global.error.exception.BusinessException;
 import com.project.global.error.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -10,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +29,12 @@ import java.util.Collections;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
+
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    private final RedisService redisService;
 
     // 실제 JWT 검증을 실행하는 Provider
     @Autowired
@@ -40,6 +46,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     Arrays.asList(
                             "/static/**",
                             "/favicon.ico",
+                            "/api/members/register",
                             "/api/members/login"
                     ));
 
@@ -59,8 +66,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 memberId = jwtTokenProvider.getSubFromToken(jwtToken);
                 String subject = jwtTokenProvider.getSubjectFromToken(jwtToken);
-                if (subject.equals("refresh-token") && !request.getRequestURI().equals("/api/members/reissue")){
+                Boolean refreshPathNotValid = subject.equals("refresh-token") && !request.getRequestURI().equals("/api/members/reissue");
+                Boolean accessPathNotValid = subject.equals("access-token") && request.getRequestURI().equals("/api/members/reissue");
+
+                if (refreshPathNotValid){
+                    log.error("요청 경로가 잘못되었습니다.");
                     throw new BusinessException(ErrorCode.CANT_REISSUE);
+                } if (accessPathNotValid){
+                    log.error("요청 경로가 잘못되었습니다.");
+                    throw new BusinessException(ErrorCode.CANT_REISSUE);
+                } else if (subject.equals("refresh-token")) {
+                    jwtTokenProvider.verifiedRefreshToken(token);
                 }
             } catch (SignatureException e) {
                 log.error("Invalid JWT signature: {}", e.getMessage());
@@ -88,15 +104,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
-        }
-
-        // accessToken 인증이 되었다면 refreshToken 재발급이 필요한 경우 재발급
-        try {
-            if(memberId != null) {
-                // jwtTokenProvider.reGenerateRefreshToken(memberId); // todo : refreshToken부분
-            }
-        }catch (Exception e) {
-            log.error("[JwtRequestFilter] refreshToken 재발급 체크 중 문제 발생 : {}", e.getMessage());
         }
 
         filterChain.doFilter(request,response);

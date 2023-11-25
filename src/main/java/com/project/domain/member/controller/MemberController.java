@@ -45,13 +45,9 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(memberService.loginMember(memberLoginRequestDto));
     }
 
-    @PostMapping("/reissue")
-    public ResponseEntity reissueMember(
-            @Valid @RequestBody(required = false) MemberLoginRequestDto memberLoginRequestDto) {
-        if (ObjectUtils.isEmpty(memberLoginRequestDto)){
-            throw new BusinessException(ErrorCode.MISSING_REQUEST);
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.loginMember(memberLoginRequestDto));
+    @GetMapping("/reissue")
+    public ResponseEntity reissueMember() {
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.reissueMember());
     }
 
     @GetMapping
