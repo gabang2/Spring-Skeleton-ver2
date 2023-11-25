@@ -1,6 +1,5 @@
 package com.project.global.config.jwt;
 
-import com.project.domain.member.dto.MemberLoginRequestDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -72,7 +71,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // token 검증이 되고 인증 정보가 존재하지 않는 경우 spring security 인증 정보 저장
         if(memberId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            MemberLoginRequestDto memberLoginRequestDto = new MemberLoginRequestDto();
 
             if(jwtTokenProvider.validateToken(jwtToken)) {
                 
@@ -87,7 +85,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         // accessToken 인증이 되었다면 refreshToken 재발급이 필요한 경우 재발급
         try {
             if(memberId != null) {
-                jwtTokenProvider.reGenerateRefreshToken(memberId);
+                // jwtTokenProvider.reGenerateRefreshToken(memberId); // todo : refreshToken부분
             }
         }catch (Exception e) {
             log.error("[JwtRequestFilter] refreshToken 재발급 체크 중 문제 발생 : {}", e.getMessage());

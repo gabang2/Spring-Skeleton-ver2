@@ -26,21 +26,16 @@ public class Member extends BaseEntity {
     @Column(name = "password")
     public String password;
 
-    @Column(name = "refresh_token")
-    public String refreshToken;
-
     @Builder
     public Member(String email, String password) {
         this.email = email;
         this.password = password;
-        this.refreshToken = null;
     }
 
     // Patch
     public Member patchMember(MemberPatchRequestDto memberPatchRequestDto) {
         this.email = Optional.ofNullable(memberPatchRequestDto.getEmail()).orElse(this.email);
         this.password = Optional.ofNullable(memberPatchRequestDto.getPassword()).orElse(this.password);
-        this.refreshToken = Optional.ofNullable(memberPatchRequestDto.getRefreshToken()).orElse(this.refreshToken);
         return this;
     }
 }

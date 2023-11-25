@@ -29,10 +29,7 @@ public class SecurityConfig {
      * 메서드 2. matchers : 매개변수 1(인코딩 되지 않은 패스워드), 매개변수 2(인코딩된 패스워드) 와의 일치 여부 boolean으로 반환<br>
      * 메서드 3. upgradeEncoding : 인코딩된 암호를 한 번 더 인코딩하는 경우
      */
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 
     // todo : 사용 용도를 모르겠음.
     @Bean
@@ -45,7 +42,8 @@ public class SecurityConfig {
 
         // Security 인증을 거치지 않는 url 목록
         MvcRequestMatcher[] PERMIT_ALL_WHITE_LIST = {
-                mvc.pattern("/api/members/login")
+                mvc.pattern("/api/members/login"),
+                mvc.pattern("/api/members/register")
         };
 
         // rest api는 stateless 하기 때문에, csrf토큰 정보가 필요 없어서 disable 설정

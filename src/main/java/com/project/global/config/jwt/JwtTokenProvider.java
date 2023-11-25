@@ -7,6 +7,8 @@ import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -18,13 +20,16 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private final MemberService memberService;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private static String secret = "jangdaehyeok";
 
     // 1시간 단위
     public static final long JWT_TOKEN_VALIDITY = 1000 * 60 * 60;
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     // token으로 사용자 id 조회
     public String getSubFromToken(String token) {
@@ -60,6 +65,10 @@ public class JwtTokenProvider {
         return generateAccessToken(id, new HashMap<>());
     }
 
+    public String generateAccessToken(Long id) {
+        return generateAccessToken(id.toString(), new HashMap<>());
+    }
+
     // id, 속성정보를 이용해 accessToken 생성
     public String generateAccessToken(String id, Map<String, Object> claims) {
         return doGenerateAccessToken(id, claims);
@@ -75,7 +84,7 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
 
-        return accessToken;
+        return "Bearer " + accessToken;
     }
 
     // id를 입력받아 accessToken 생성
@@ -129,39 +138,40 @@ public class JwtTokenProvider {
         return tokens;
     }
 
+    // redis로 구현하기
     // JWT refreshToken 만료체크 후 재발급
-    public Boolean reGenerateRefreshToken(String memberId) throws Exception {
-        log.info("[reGenerateRefreshToken] refreshToken 재발급 요청");
-        // 관리자 정보 조회
-        Member member = memberService.verifiedMember(Long.parseLong(memberId));
-        String memberRefreshToken = member.getRefreshToken();
-
-        // refreshToken 정보가 존재하지 않는 경우
-        if(memberRefreshToken == null) {
-            log.info("[reGenerateRefreshToken] refreshToken 정보가 존재하지 않습니다.");
-            return false;
-        }
-
-        // refreshToken 만료 여부 체크
-        try {
-            String refreshToken = memberRefreshToken.substring(7);
-            Jwts.parser().setSigningKey(secret).parseClaimsJws(refreshToken);
-            log.info("[reGenerateRefreshToken] refreshToken이 만료되지 않았습니다.");
-            return true;
-        }
-        // refreshToken이 만료된 경우 재발급
-        catch(ExpiredJwtException e) {
-            String refreshToken = "Bearer " + generateRefreshToken(memberId);
-            memberService.patchMember(Long.parseLong(memberId), MemberPatchRequestDto.builder().refreshToken(refreshToken).build());
-            log.info("[reGenerateRefreshToken] refreshToken 재발급 완료 : {}", refreshToken);
-            return true;
-        }
-        // 그 외 예외처리
-        catch(Exception e) {
-            log.error("[reGenerateRefreshToken] refreshToken 재발급 중 문제 발생 : {}", e.getMessage());
-            return false;
-        }
-    }
+//    public Boolean reGenerateRefreshToken(String memberId) throws Exception {
+//        log.info("[reGenerateRefreshToken] refreshToken 재발급 요청");
+//        // 관리자 정보 조회
+//        Member member = memberService.verifiedMember(Long.parseLong(memberId));
+//        String memberRefreshToken = member.getRefreshToken();
+//
+//        // refreshToken 정보가 존재하지 않는 경우
+//        if(memberRefreshToken == null) {
+//            log.info("[reGenerateRefreshToken] refreshToken 정보가 존재하지 않습니다.");
+//            return false;
+//        }
+//
+//        // refreshToken 만료 여부 체크
+//        try {
+//            String refreshToken = memberRefreshToken.substring(7);
+//            Jwts.parser().setSigningKey(secret).parseClaimsJws(refreshToken);
+//            log.info("[reGenerateRefreshToken] refreshToken이 만료되지 않았습니다.");
+//            return true;
+//        }
+//        // refreshToken이 만료된 경우 재발급
+//        catch(ExpiredJwtException e) {
+//            String refreshToken = "Bearer " + generateRefreshToken(memberId);
+//            memberService.patchMember(Long.parseLong(memberId), MemberPatchRequestDto.builder().refreshToken(refreshToken).build());
+//            log.info("[reGenerateRefreshToken] refreshToken 재발급 완료 : {}", refreshToken);
+//            return true;
+//        }
+//        // 그 외 예외처리
+//        catch(Exception e) {
+//            log.error("[reGenerateRefreshToken] refreshToken 재발급 중 문제 발생 : {}", e.getMessage());
+//            return false;
+//        }
+//    }
 
     // 토근 검증
     public Boolean validateToken(String token) {

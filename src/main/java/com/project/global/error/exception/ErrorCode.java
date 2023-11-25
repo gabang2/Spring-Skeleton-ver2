@@ -28,6 +28,9 @@ public enum ErrorCode {
     NICKNAME_DUPLICATE(400, "M007", "닉네임이 중복되었습니다."),
     MEMBER_LOGOUT(400, "M008", "이미 로그아웃한 유저입니다."),
     MEMBER_ALREADY(400, "M009", "이미 가입한 유저입니다."),
+    EMAIL_DUPLICATE(400, "M010", "이메일이 중복되었습니다."),
+    EMAIL_NOT_EXIST(400, "M012", "존재하지 않는 이메일입니다."),
+    PASSWORD_NOT_MATCH(400, "M013", "비밀번호가 잘못되었습니다."),
 
     // Ticket
     TICKET_NOT_FOUND(400, "T001", "티켓을 찾을 수 없습니다."),
